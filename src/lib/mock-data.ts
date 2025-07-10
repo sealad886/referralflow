@@ -5,7 +5,7 @@ export type Patient = {
   gender: 'Male' | 'Female' | 'Other';
 };
 
-export type ReferralStatus = 'Pending' | 'In Progress' | 'Completed' | 'Cancelled' | 'Canceled by referrer' | 'Refused by referred' | 'Patient declined';
+export type ReferralStatus = 'Draft' | 'Pending' | 'In Progress' | 'Completed' | 'Cancelled' | 'Canceled by referrer' | 'Refused by referred' | 'Patient declined';
 
 export type Referral = {
   id: string;
@@ -14,6 +14,7 @@ export type Referral = {
   status: ReferralStatus;
   date: string;
   priority: 'Routine' | 'Urgent' | 'STAT';
+  isDraft?: boolean;
 };
 
 export type NotificationEvent = {
@@ -114,7 +115,16 @@ export const referrals: Referral[] = [
     status: 'Patient declined',
     date: '2023-11-08',
     priority: 'Routine',
-  }
+  },
+  {
+    id: 'REF011',
+    patient: patients[3],
+    department: 'Cardiology',
+    status: 'Draft',
+    date: '2023-11-09',
+    priority: 'Routine',
+    isDraft: true,
+  },
 ];
 
 export const notifications: NotificationEvent[] = [

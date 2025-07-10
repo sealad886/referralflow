@@ -57,6 +57,7 @@ const statusColors: { [key in ReferralStatus]: "default" | "secondary" | "destru
   "Canceled by referrer": "destructive",
   "Refused by referred": "destructive",
   "Patient declined": "destructive",
+  "Draft": "secondary",
 };
 
 const doneStatuses: ReferralStatus[] = ["Completed", "Cancelled", "Canceled by referrer", "Refused by referred", "Patient declined"];
@@ -75,7 +76,7 @@ export default function ReferralsPage() {
   const departments = React.useMemo(() => [...new Set(referrals.map(r => r.department))], []);
   
   const availableStatuses = React.useMemo(() => {
-    const allStatuses: ReferralStatus[] = ["Pending", "In Progress", "Completed", "Cancelled", "Canceled by referrer", "Refused by referred", "Patient declined"];
+    const allStatuses: ReferralStatus[] = ["Draft", "Pending", "In Progress", "Completed", "Cancelled", "Canceled by referrer", "Refused by referred", "Patient declined"];
     if (includeDone) {
       return allStatuses;
     }
@@ -117,7 +118,12 @@ export default function ReferralsPage() {
   };
 
   const handleRowClick = (referral: Referral) => {
-    setSelectedReferral(referral);
+    if (referral.isDraft) {
+      // Logic to open and edit draft - can be a special prop to NewReferralDialog
+      console.log("Editing draft:", referral.id);
+    } else {
+      setSelectedReferral(referral);
+    }
   };
   
   React.useEffect(() => {
@@ -146,6 +152,8 @@ export default function ReferralsPage() {
         filtered = filtered.filter(r => r.status === 'Pending');
     } else if (activeTab === 'in-progress') {
         filtered = filtered.filter(r => r.status === 'In Progress');
+    } else if (activeTab === 'drafts') {
+        filtered = filtered.filter(r => r.status === 'Draft');
     }
 
     if (searchTerm) {
@@ -203,6 +211,10 @@ export default function ReferralsPage() {
     if (!status) return sourceData.length;
     return sourceData.filter(r => r.status === status).length;
   }
+  
+  const getDraftCount = () => {
+    return referrals.filter(r => r.isDraft).length;
+  }
 
   return (
     <AppLayout>
@@ -215,6 +227,7 @@ export default function ReferralsPage() {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <TabsList>
               <TabsTrigger value="all">All ({getTabCount()})</TabsTrigger>
+              <TabsTrigger value="drafts">Drafts ({getDraftCount()})</TabsTrigger>
               <TabsTrigger value="pending">Pending ({getTabCount('Pending')})</TabsTrigger>
               <TabsTrigger value="in-progress">In Progress ({getTabCount('In Progress')})</TabsTrigger>
             </TabsList>
