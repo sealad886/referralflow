@@ -49,11 +49,9 @@ export default function LoginPage() {
               </div>
               <Input id="password" type="password" required />
             </div>
-            <Link href="/" legacyBehavior>
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
-            </Link>
+            <Button asChild type="submit" className="w-full">
+              <Link href="/">Login</Link>
+            </Button>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
