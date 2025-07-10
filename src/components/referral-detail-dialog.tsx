@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +12,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -22,6 +30,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Referral } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface ReferralDetailDialogProps {
   referral: Referral;
@@ -43,13 +52,14 @@ export function ReferralDetailDialog({
     setIsEditMode(false);
   }, [referral]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
+  const handleSelectChange = (id: string, value: string) => {
     setEditedReferral((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSelectChange = (id: string, value: string) => {
-    setEditedReferral((prev) => ({ ...prev, [id]: value }));
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      setEditedReferral((prev) => ({ ...prev, date: format(date, "yyyy-MM-dd") }));
+    }
   };
   
   const handleSave = () => {
@@ -65,11 +75,18 @@ export function ReferralDetailDialog({
 
   const handleCancel = () => {
     setEditedReferral(referral);
+    setIsEditMode(false);
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        handleCancel();
+      } else {
+        onOpenChange(true);
+      }
+    }}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <div className="flex justify-between items-center">
@@ -144,14 +161,29 @@ export function ReferralDetailDialog({
             <Label htmlFor="date" className="text-right">
               Date
             </Label>
-            <Input
-              id="date"
-              value={editedReferral.date}
-              onChange={handleInputChange}
-              className="col-span-3"
-              type="date"
-              disabled={!isEditMode}
-            />
+             <Popover>
+                <PopoverTrigger asChild disabled={!isEditMode}>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "col-span-3 justify-start text-left font-normal",
+                      !editedReferral.date && "text-muted-foreground"
+                    )}
+                    disabled={!isEditMode}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {editedReferral.date ? format(new Date(editedReferral.date), "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={new Date(editedReferral.date)}
+                    onSelect={handleDateChange}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
           </div>
            <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="priority" className="text-right">
