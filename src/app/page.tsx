@@ -43,28 +43,42 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { referrals, Referral, Patient } from "@/lib/mock-data";
+import { referrals, Referral, Patient, ReferralStatus } from "@/lib/mock-data";
 import { NewReferralDialog } from "@/components/new-referral-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
-const statusColors: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
+const statusColors: { [key in ReferralStatus]: "default" | "secondary" | "destructive" | "outline" } = {
   "Pending": "secondary",
   "In Progress": "default",
   "Completed": "outline",
   "Cancelled": "destructive",
+  "Canceled by referrer": "destructive",
+  "Refused by referred": "destructive",
+  "Patient declined": "destructive",
 };
+
+const doneStatuses: ReferralStatus[] = ["Completed", "Cancelled", "Canceled by referrer", "Refused by referred", "Patient declined"];
 
 type SortKey = "patient" | "department" | "status" | "date";
 
 export default function DashboardPage() {
-  const [data, setData] = React.useState(referrals);
   const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
   const [sortConfig, setSortConfig] = React.useState<{ key: SortKey; direction: 'asc' | 'desc' } | null>({ key: 'date', direction: 'desc' });
   const [filters, setFilters] = React.useState<{ department: string[], status: string[] }>({ department: [], status: [] });
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [activeTab, setActiveTab] = React.useState('all');
+  const [includeDone, setIncludeDone] = React.useState(false);
 
   const departments = React.useMemo(() => [...new Set(referrals.map(r => r.department))], []);
-  const statuses = React.useMemo(() => [...new Set(referrals.map(r => r.status))], []);
+  
+  const availableStatuses = React.useMemo(() => {
+    const allStatuses: ReferralStatus[] = ["Pending", "In Progress", "Completed", "Cancelled", "Canceled by referrer", "Refused by referred", "Patient declined"];
+    if (includeDone) {
+      return allStatuses;
+    }
+    return allStatuses.filter(s => !doneStatuses.includes(s));
+  }, [includeDone]);
 
   const handleSort = (key: SortKey) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -86,7 +100,7 @@ export default function DashboardPage() {
 
   const handleSelectAll = (checked: boolean | 'indeterminate') => {
     if (checked === true) {
-      setSelectedRows(data.map(r => r.id));
+      setSelectedRows(sortedAndFilteredData.map(r => r.id));
     } else {
       setSelectedRows([]);
     }
@@ -99,16 +113,43 @@ export default function DashboardPage() {
         : [...prev, rowId]
     );
   };
+  
+  React.useEffect(() => {
+    // When includeDone changes, we might need to update the status filter
+    // to remove statuses that are no longer available.
+    if (!includeDone) {
+        setFilters(prev => ({
+            ...prev,
+            status: prev.status.filter(s => !doneStatuses.includes(s as ReferralStatus))
+        }));
+    }
+  }, [includeDone]);
+
+  const filteredByDoneStatus = React.useMemo(() => {
+    if (includeDone) {
+        return [...referrals];
+    }
+    return referrals.filter(r => !doneStatuses.includes(r.status));
+  }, [includeDone]);
 
   const filteredData = React.useMemo(() => {
-    let filtered = [...referrals];
+    let filtered = [...filteredByDoneStatus];
+
+    // Tab-based filtering
+    if (activeTab === 'pending') {
+        filtered = filtered.filter(r => r.status === 'Pending');
+    } else if (activeTab === 'in-progress') {
+        filtered = filtered.filter(r => r.status === 'In Progress');
+    }
 
     if (searchTerm) {
+      const lowercasedTerm = searchTerm.toLowerCase();
       filtered = filtered.filter(r =>
-        r.patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.patient.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.id.toLowerCase().includes(searchTerm.toLowerCase())
+        r.patient.name.toLowerCase().includes(lowercasedTerm) ||
+        r.patient.id.toLowerCase().includes(lowercasedTerm) ||
+        r.department.toLowerCase().includes(lowercasedTerm) ||
+        r.id.toLowerCase().includes(lowercasedTerm) ||
+        JSON.stringify(r).toLowerCase().includes(lowercasedTerm)
       );
     }
     
@@ -121,7 +162,7 @@ export default function DashboardPage() {
     }
 
     return filtered;
-  }, [searchTerm, filters]);
+  }, [searchTerm, filters, activeTab, filteredByDoneStatus]);
 
 
   const sortedAndFilteredData = React.useMemo(() => {
@@ -134,8 +175,8 @@ export default function DashboardPage() {
         if (sortConfig.key === 'patient') {
             const aPatient = a.patient as Patient;
             const bPatient = b.patient as Patient;
-            if (aPatient.name < bPatient.name) return sortConfig.direction === 'asc' ? -1 : 1;
-            if (aPatient.name > bPatient.name) return sortConfig.direction === 'asc' ? 1 : -1;
+            if (aPatient.name.toLowerCase() < bPatient.name.toLowerCase()) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aPatient.name.toLowerCase() > bPatient.name.toLowerCase()) return sortConfig.direction === 'asc' ? 1 : -1;
             if (aPatient.id < bPatient.id) return sortConfig.direction === 'asc' ? -1 : 1;
             if (aPatient.id > bPatient.id) return sortConfig.direction === 'asc' ? 1 : -1;
             return 0;
@@ -150,6 +191,12 @@ export default function DashboardPage() {
   }, [filteredData, sortConfig]);
 
   const numSelected = selectedRows.length;
+  
+  const getTabCount = (status?: ReferralStatus) => {
+    const sourceData = includeDone ? referrals : referrals.filter(r => !doneStatuses.includes(r.status));
+    if (!status) return sourceData.length;
+    return sourceData.filter(r => r.status === status).length;
+  }
 
   return (
     <AppLayout>
@@ -158,17 +205,21 @@ export default function DashboardPage() {
           <h1 className="font-semibold text-3xl">Referral Dashboard</h1>
           <NewReferralDialog />
         </div>
-        <Tabs defaultValue="all">
-          <div className="flex items-center">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <TabsList>
-              <TabsTrigger value="all" onClick={() => setFilters(prev => ({ ...prev, status: [] }))}>All</TabsTrigger>
-              <TabsTrigger value="pending" onClick={() => setFilters(prev => ({...prev, status: ['Pending']}))}>Pending</TabsTrigger>
-              <TabsTrigger value="in-progress" onClick={() => setFilters(prev => ({...prev, status: ['In Progress']}))}>In Progress</TabsTrigger>
-              <TabsTrigger value="completed" className="hidden sm:flex" onClick={() => setFilters(prev => ({...prev, status: ['Completed']}))}>
-                Completed
-              </TabsTrigger>
+              <TabsTrigger value="all">All ({getTabCount()})</TabsTrigger>
+              <TabsTrigger value="pending">Pending ({getTabCount('Pending')})</TabsTrigger>
+              <TabsTrigger value="in-progress">In Progress ({getTabCount('In Progress')})</TabsTrigger>
             </TabsList>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-2">
+                    <Checkbox id="include-done" checked={includeDone} onCheckedChange={(checked) => setIncludeDone(checked as boolean)} />
+                    <Label htmlFor="include-done" className="text-sm font-medium">
+                        Include Done?
+                    </Label>
+                </div>
+              <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 gap-1">
@@ -193,7 +244,7 @@ export default function DashboardPage() {
                    <DropdownMenuSeparator />
                    <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {statuses.map(status => (
+                  {availableStatuses.map(status => (
                      <DropdownMenuCheckboxItem
                         key={status}
                         checked={filters.status.includes(status)}
@@ -210,9 +261,10 @@ export default function DashboardPage() {
                   Export
                 </span>
               </Button>
+              </div>
             </div>
           </div>
-          <TabsContent value="all">
+          <TabsContent value={activeTab}>
             <Card>
               <CardHeader>
                 <CardTitle>Referrals</CardTitle>
@@ -246,10 +298,10 @@ export default function DashboardPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead padding="checkbox">
+                      <TableHead className="w-[40px]">
                         <Checkbox
                           checked={numSelected === sortedAndFilteredData.length && sortedAndFilteredData.length > 0 ? true : numSelected > 0 ? 'indeterminate' : false}
-                          onCheckedChange={handleSelectAll}
+                          onCheckedChange={(checked) => handleSelectAll(checked)}
                           aria-label="Select all"
                         />
                       </TableHead>
@@ -286,8 +338,8 @@ export default function DashboardPage() {
                     {sortedAndFilteredData.map((referral: Referral) => {
                       const isSelected = selectedRows.includes(referral.id);
                       return (
-                        <TableRow key={referral.id} data-state={isSelected && "selected"}>
-                          <TableCell padding="checkbox">
+                        <TableRow key={referral.id} data-state={isSelected ? "selected" : undefined}>
+                          <TableCell>
                             <Checkbox
                               checked={isSelected}
                               onCheckedChange={() => handleRowSelect(referral.id)}

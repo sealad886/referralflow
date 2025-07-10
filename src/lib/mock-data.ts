@@ -5,11 +5,13 @@ export type Patient = {
   gender: 'Male' | 'Female' | 'Other';
 };
 
+export type ReferralStatus = 'Pending' | 'In Progress' | 'Completed' | 'Cancelled' | 'Canceled by referrer' | 'Refused by referred' | 'Patient declined';
+
 export type Referral = {
   id: string;
   patient: Patient;
   department: 'Cardiology' | 'Orthopedics' | 'Neurology' | 'Oncology' | 'Pediatrics';
-  status: 'Pending' | 'In Progress' | 'Completed' | 'Cancelled';
+  status: ReferralStatus;
   date: string;
   priority: 'Routine' | 'Urgent' | 'STAT';
 };
@@ -87,6 +89,30 @@ export const referrals: Referral[] = [
     department: 'Cardiology',
     status: 'Pending',
     date: '2023-11-05',
+    priority: 'Routine',
+  },
+  {
+    id: 'REF008',
+    patient: patients[0],
+    department: 'Oncology',
+    status: 'Canceled by referrer',
+    date: '2023-11-06',
+    priority: 'Routine',
+  },
+  {
+    id: 'REF009',
+    patient: patients[1],
+    department: 'Neurology',
+    status: 'Refused by referred',
+    date: '2023-11-07',
+    priority: 'Routine',
+  },
+  {
+    id: 'REF010',
+    patient: patients[2],
+    department: 'Orthopedics',
+    status: 'Patient declined',
+    date: '2023-11-08',
     priority: 'Routine',
   }
 ];
