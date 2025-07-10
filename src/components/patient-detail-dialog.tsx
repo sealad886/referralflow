@@ -37,7 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Patient, Referral, referrals } from "@/lib/mock-data";
+import { Patient, Referral, referrals, ReferralStatus } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ReferralDetailDialog } from "./referral-detail-dialog";
@@ -47,6 +47,18 @@ interface PatientDetailDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 }
+
+const statusColors: { [key in ReferralStatus]: "default" | "secondary" | "destructive" | "outline" } = {
+  "Pending": "secondary",
+  "In Progress": "default",
+  "Completed": "outline",
+  "Cancelled": "destructive",
+  "Canceled by referrer": "destructive",
+  "Refused by referred": "destructive",
+  "Patient declined": "destructive",
+  "Draft": "secondary",
+};
+
 
 export function PatientDetailDialog({
   patient,
@@ -92,6 +104,7 @@ export function PatientDetailDialog({
 
   const handleSave = () => {
     console.log("Saving patient:", editedPatient);
+    // In a real app, update the global state / database
     toast({
       title: "Patient Record Saved",
       description: `Changes for ${editedPatient.name} have been saved.`,
@@ -204,7 +217,7 @@ export function PatientDetailDialog({
                             <TableCell>{referral.date}</TableCell>
                             <TableCell>{referral.department}</TableCell>
                             <TableCell>
-                              <Badge variant="outline">{referral.status}</Badge>
+                              <Badge variant={statusColors[referral.status] || "default"}>{referral.status}</Badge>
                             </TableCell>
                             <TableCell>{referral.diagnosis || "N/A"}</TableCell>
                           </TableRow>
