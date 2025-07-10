@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -5,17 +6,12 @@ import { useTheme } from "next-themes"
 import { Moon, Sun, Monitor, Paintbrush } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Label } from "./ui/label"
 import { cn } from "@/lib/utils"
 
 export function ThemeSwitcher() {
-  const { setTheme, theme, resolvedTheme } = useTheme()
+  const { setTheme, theme } = useTheme()
+  const [activeColorTheme, setActiveColorTheme] = React.useState("");
 
   const themes = [
     { name: "Light", value: "light", icon: Sun },
@@ -43,16 +39,17 @@ export function ThemeSwitcher() {
     
     document.body.className = filteredClasses.join(' ');
     localStorage.setItem("color-theme", newTheme);
+    setActiveColorTheme(newTheme);
   };
   
   React.useEffect(() => {
-    const savedColorTheme = localStorage.getItem("color-theme");
-    if (savedColorTheme) {
-      handleColorThemeChange(savedColorTheme);
-    }
+    const savedColorTheme = localStorage.getItem("color-theme") || "";
+    handleColorThemeChange(savedColorTheme);
+    
+    // Set active theme on initial load
+    const currentTheme = colorThemes.find(ct => document.body.classList.contains(ct.value))?.value || "";
+    setActiveColorTheme(currentTheme);
   }, []);
-
-  const activeColorTheme = colorThemes.find(ct => document.body.classList.contains(ct.value))?.value || "";
 
   return (
     <div className="grid gap-4">
