@@ -20,9 +20,11 @@ import {
 } from "@/components/ui/table";
 import { patients, Patient } from "@/lib/mock-data";
 import { Search } from "lucide-react";
+import { PatientDetailDialog } from "@/components/patient-detail-dialog";
 
 export default function PatientsPage() {
   const [filteredPatients, setFilteredPatients] = React.useState(patients);
+  const [selectedPatient, setSelectedPatient] = React.useState<Patient | null>(null);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase();
@@ -33,6 +35,10 @@ export default function PatientsPage() {
           p.id.toLowerCase().includes(term)
       )
     );
+  };
+
+  const handleRowClick = (patient: Patient) => {
+    setSelectedPatient(patient);
   };
 
   return (
@@ -70,7 +76,11 @@ export default function PatientsPage() {
               </TableHeader>
               <TableBody>
                 {filteredPatients.map((patient: Patient) => (
-                  <TableRow key={patient.id}>
+                  <TableRow 
+                    key={patient.id} 
+                    onClick={() => handleRowClick(patient)} 
+                    className="cursor-pointer"
+                  >
                     <TableCell className="font-mono text-sm">{patient.id}</TableCell>
                     <TableCell className="font-medium">{patient.name}</TableCell>
                     <TableCell>{patient.dob}</TableCell>
@@ -81,6 +91,17 @@ export default function PatientsPage() {
             </Table>
           </CardContent>
         </Card>
+        {selectedPatient && (
+          <PatientDetailDialog
+            patient={selectedPatient}
+            isOpen={!!selectedPatient}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) {
+                setSelectedPatient(null);
+              }
+            }}
+          />
+        )}
       </main>
     </AppLayout>
   );
