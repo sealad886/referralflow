@@ -1,4 +1,8 @@
+
+"use client";
+
 import { AppLayout } from "@/components/app-layout";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,9 +20,9 @@ import {
   TimelineDescription,
   TimelineContent,
 } from "@/components/ui/timeline";
-import { User, Edit, FilePlus } from "lucide-react";
+import { User, Edit, FilePlus, ArrowLeft } from "lucide-react";
 import { referrals } from "@/lib/mock-data";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 
 // Mock history data for a referral
 const mockHistory = [
@@ -58,6 +62,7 @@ const mockHistory = [
 
 
 export default function ReferralHistoryPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const referral = referrals.find(r => r.id === params.id);
 
   if (!referral) {
@@ -67,7 +72,11 @@ export default function ReferralHistoryPage({ params }: { params: { id: string }
   return (
     <AppLayout>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <div className="flex items-center">
+        <div className="flex items-center gap-4">
+           <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">Back</span>
+          </Button>
           <h1 className="font-semibold text-3xl">Referral History</h1>
         </div>
         <Card>
