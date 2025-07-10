@@ -42,6 +42,7 @@ import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
 
 const navItems = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/referrals", label: "Referrals", icon: FileText },
   { href: "/patients", label: "Patients", icon: Users },
   { href: "/notifications", label: "Notifications", icon: Bell },
@@ -65,7 +66,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton asChild
-                  isActive={pathname === item.href}
+                  isActive={pathname.startsWith(item.href)}
                   tooltip={item.label}
                 >
                   <Link href={item.href}>
