@@ -132,9 +132,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Main Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          
           {/* My Referrals Metrics */}
-          <Card className="lg:col-span-3">
+          <Card className="lg:col-span-4">
             <CardHeader>
               <CardTitle>My Referrals</CardTitle>
               <CardDescription>
@@ -158,101 +159,97 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
           
-          <div className="lg:col-span-2 grid gap-6">
-            {/* Requires Action */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Requires Action</CardTitle>
-                  <CardDescription>
-                    Tasks and referrals needing your attention.
-                  </CardDescription>
-                </div>
-                 <Button variant="outline" size="sm" asChild>
-                    <Link href="#">View All</Link>
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <List>
-                  {actionItems.map((item, index) => (
-                    <ListItem key={index} className={cn(priorityClasses[item.priority as keyof typeof priorityClasses], "pl-4")}>
-                      <ListIcon icon={item.icon} />
-                      <ListContent>
-                        <ListTitle>{item.title}</ListTitle>
-                        <ListSubtitle>{item.subtitle}</ListSubtitle>
-                      </ListContent>
-                      <Button variant="ghost" size="icon">
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </ListItem>
-                  ))}
-                </List>
-              </CardContent>
-            </Card>
-
-            {/* Department Metrics */}
-             <Card>
-              <CardHeader>
-                <CardTitle>Department Metrics</CardTitle>
+          {/* Requires Action */}
+          <Card className="lg:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Requires Action</CardTitle>
                 <CardDescription>
-                  Key metrics for the Cardiology department.
+                  Tasks and referrals needing your attention.
                 </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* Placeholder for charts or more complex data */}
-                 <p className="text-sm text-muted-foreground">Department-level analytics will be shown here.</p>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                  <Link href="#">View All</Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <List>
+                {actionItems.map((item, index) => (
+                  <ListItem key={index} className={cn(priorityClasses[item.priority as keyof typeof priorityClasses], "pl-4")}>
+                    <ListIcon icon={item.icon as keyof typeof import("lucide-react")} />
+                    <ListContent>
+                      <ListTitle>{item.title}</ListTitle>
+                      <ListSubtitle>{item.subtitle}</ListSubtitle>
+                    </ListContent>
+                    <Button variant="ghost" size="icon">
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+          
+          {/* Updates */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>My Referral Updates</CardTitle>
+              <CardDescription>Recent activity on your referrals.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <List>
+                {updates.map((item, index) => (
+                  <ListItem key={index} unread={!item.read}>
+                    <ListIcon icon={item.icon as keyof typeof import("lucide-react")} />
+                    <ListContent>
+                      <ListTitle>{item.title}</ListTitle>
+                      <ListSubtitle>{item.subtitle}</ListSubtitle>
+                    </ListContent>
+                    <span className="text-xs text-muted-foreground">
+                      {item.time}
+                    </span>
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
 
-          <div className="lg:col-span-1 grid gap-6">
-            {/* Updates */}
-            <Card>
-              <CardHeader>
-                <CardTitle>My Referral Updates</CardTitle>
-                 <CardDescription>Recent activity on your referrals.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <List>
-                  {updates.map((item, index) => (
-                    <ListItem key={index} unread={!item.read}>
-                      <ListIcon icon={item.icon} />
-                      <ListContent>
-                        <ListTitle>{item.title}</ListTitle>
-                        <ListSubtitle>{item.subtitle}</ListSubtitle>
-                      </ListContent>
-                      <span className="text-xs text-muted-foreground">
-                        {item.time}
-                      </span>
-                    </ListItem>
-                  ))}
-                </List>
-              </CardContent>
-            </Card>
+          {/* Department Metrics */}
+          <Card className="lg:col-span-3">
+            <CardHeader>
+              <CardTitle>Department Metrics</CardTitle>
+              <CardDescription>
+                Key metrics for the Cardiology department.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Placeholder for charts or more complex data */}
+              <p className="text-sm text-muted-foreground">Department-level analytics will be shown here.</p>
+            </CardContent>
+          </Card>
 
-            {/* Resources */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Resources</CardTitle>
-                 <CardDescription>Quick links to important resources.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <List>
-                  {resources.map((item, index) => (
-                    <ListItem key={index}>
-                      <ListIcon icon={item.icon} />
-                      <ListContent>
-                        <ListTitle>{item.title}</ListTitle>
-                      </ListContent>
-                      <Button variant="ghost" size="icon">
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </ListItem>
-                  ))}
-                </List>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Resources */}
+          <Card className="lg:col-span-1">
+            <CardHeader>
+              <CardTitle>Resources</CardTitle>
+              <CardDescription>Quick links to important resources.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <List>
+                {resources.map((item, index) => (
+                  <ListItem key={index}>
+                    <ListIcon icon={item.icon as keyof typeof import("lucide-react")} />
+                    <ListContent>
+                      <ListTitle>{item.title}</ListTitle>
+                    </ListContent>
+                    <Button variant="ghost" size="icon">
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </AppLayout>

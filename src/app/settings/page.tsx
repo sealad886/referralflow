@@ -1,4 +1,5 @@
 import { AppLayout } from "@/components/app-layout";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,6 +21,17 @@ export default function SettingsPage() {
           <h1 className="font-semibold text-3xl">Settings</h1>
         </div>
         <div className="grid gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appearance</CardTitle>
+              <CardDescription>
+                Customize the look and feel of the application.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ThemeSwitcher />
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle>Profile</CardTitle>
