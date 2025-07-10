@@ -32,29 +32,29 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const metrics: {title: string; value: string; icon: LucideIcon, color: string}[] = [
+const metrics: {title: string; value: string; icon: keyof typeof import("lucide-react"), color: string}[] = [
   {
     title: "Ongoing Referrals",
     value: "12",
-    icon: Briefcase,
+    icon: "Briefcase",
     color: "text-blue-500",
   },
   {
     title: "Completed This Month",
     value: "8",
-    icon: CheckCircle2,
+    icon: "CheckCircle2",
     color: "text-green-500",
   },
   {
     title: "Avg. Time to Complete",
     value: "7.2 days",
-    icon: Clock,
+    icon: "Clock",
     color: "text-yellow-500",
   },
   {
     title: "Requires Action",
     value: "3",
-    icon: AlertTriangle,
+    icon: "AlertTriangle",
     color: "text-red-500",
   },
 ];
@@ -65,21 +65,21 @@ const updates = [
     title: "Referral REF002 Completed",
     subtitle: "Orthopedics referral for Emily Jones marked as complete.",
     time: "2h ago",
-    read: false,
+    unread: true,
   },
   {
     icon: "Activity",
     title: "Status Update on REF006",
     subtitle: "Status changed to 'In Progress' for Sarah Davis.",
     time: "1d ago",
-    read: false,
+    unread: true,
   },
   {
     icon: "ClipboardList",
     title: "New Note on REF003",
     subtitle: "Dr. Jane Doe added a new clinical note.",
     time: "3d ago",
-    read: true,
+    unread: false,
   },
 ];
 
@@ -117,7 +117,7 @@ const resources = [
   },
 ];
 
-const priorityClasses = {
+const priorityClasses: { [key: string]: string } = {
     reminder: "border-l-4 border-blue-500",
     alert: "border-l-4 border-yellow-500",
     critical: "border-l-4 border-red-500",
@@ -143,19 +143,22 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {metrics.map((metric) => (
-                <Card key={metric.title}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      {metric.title}
-                    </CardTitle>
-                    <metric.icon className={`h-5 w-5 ${metric.color}`} />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{metric.value}</div>
-                  </CardContent>
-                </Card>
-              ))}
+              {metrics.map((metric) => {
+                const Icon = metric.icon as keyof typeof import("lucide-react");
+                return (
+                  <Card key={metric.title}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        {metric.title}
+                      </CardTitle>
+                      <ListIcon icon={Icon} className={cn("h-8 w-8", metric.color)} />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{metric.value}</div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </CardContent>
           </Card>
           
@@ -175,7 +178,7 @@ export default function DashboardPage() {
             <CardContent>
               <List>
                 {actionItems.map((item, index) => (
-                  <ListItem key={index} className={cn(priorityClasses[item.priority as keyof typeof priorityClasses], "pl-4")}>
+                  <ListItem key={index} className={cn(priorityClasses[item.priority], "pl-4")}>
                     <ListIcon icon={item.icon as keyof typeof import("lucide-react")} />
                     <ListContent>
                       <ListTitle>{item.title}</ListTitle>
@@ -199,7 +202,7 @@ export default function DashboardPage() {
             <CardContent>
               <List>
                 {updates.map((item, index) => (
-                  <ListItem key={index} unread={!item.read}>
+                  <ListItem key={index} unread={item.unread}>
                     <ListIcon icon={item.icon as keyof typeof import("lucide-react")} />
                     <ListContent>
                       <ListTitle>{item.title}</ListTitle>
