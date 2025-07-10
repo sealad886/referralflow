@@ -15,13 +15,21 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { List, ListItem, ListIcon, ListContent, ListTitle, ListSubtitle } from "@/components/ui/list";
-import { Smartphone, Laptop, LogOut, KeyRound, QrCode } from "lucide-react";
+import { Smartphone, Laptop, LogOut, KeyRound, QrCode, type LucideIcon } from "lucide-react";
 
-const loggedInDevices = [
+const loggedInDevices: {
+    id: string;
+    type: string;
+    icon: keyof typeof import("lucide-react");
+    browser: string;
+    location: string;
+    lastActive: string;
+    isCurrent: boolean;
+}[] = [
     {
         id: "1",
         type: "Laptop",
-        icon: Laptop,
+        icon: "Laptop",
         browser: "Chrome on macOS",
         location: "New York, NY",
         lastActive: "Active now",
@@ -30,7 +38,7 @@ const loggedInDevices = [
     {
         id: "2",
         type: "Smartphone",
-        icon: Smartphone,
+        icon: "Smartphone",
         browser: "iPhone App",
         location: "Chicago, IL",
         lastActive: "2 hours ago",
@@ -39,7 +47,7 @@ const loggedInDevices = [
     {
         id: "3",
         type: "Laptop",
-        icon: Laptop,
+        icon: "Laptop",
         browser: "Firefox on Windows",
         location: "Seattle, WA",
         lastActive: "1 day ago",
@@ -218,5 +226,3 @@ export default function SettingsPage() {
     </AppLayout>
   );
 }
-
-    
