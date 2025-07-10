@@ -6,6 +6,8 @@ export type Patient = {
 };
 
 export type ReferralStatus = 'Draft' | 'Pending' | 'In Progress' | 'Completed' | 'Cancelled' | 'Canceled by referrer' | 'Refused by referred' | 'Patient declined';
+export type ReferralSide = 'Left' | 'Right' | 'Both' | 'General';
+export type ReferralSeverity = 'Mild' | 'Moderate' | 'Severe';
 
 export type Referral = {
   id: string;
@@ -15,6 +17,16 @@ export type Referral = {
   date: string;
   priority: 'Routine' | 'Urgent' | 'STAT';
   isDraft?: boolean;
+  // New clinical fields
+  diagnosis?: string;
+  side?: ReferralSide;
+  severity?: ReferralSeverity;
+  clinicalDetails?: string;
+  treatmentToDate?: string;
+  // Audit fields
+  referredBy?: string;
+  lastEditedBy?: string;
+  lastEditedOn?: string;
 };
 
 export type NotificationEvent = {
@@ -43,6 +55,14 @@ export const referrals: Referral[] = [
     status: 'Completed',
     date: '2023-10-26',
     priority: 'Urgent',
+    diagnosis: 'Atrial Fibrillation',
+    side: 'General',
+    severity: 'Severe',
+    clinicalDetails: 'Patient presents with irregular heartbeat and shortness of breath.',
+    treatmentToDate: 'Prescribed anticoagulants.',
+    referredBy: 'Dr. Evelyn Reed',
+    lastEditedBy: 'Dr. Evelyn Reed',
+    lastEditedOn: '2023-10-26T10:00:00Z',
   },
   {
     id: 'REF002',
@@ -51,6 +71,14 @@ export const referrals: Referral[] = [
     status: 'In Progress',
     date: '2023-10-28',
     priority: 'Routine',
+    diagnosis: 'Torn ACL',
+    side: 'Left',
+    severity: 'Moderate',
+    clinicalDetails: 'Injury sustained during a soccer match.',
+    treatmentToDate: 'Physical therapy initiated.',
+    referredBy: 'Dr. Ben Carter',
+    lastEditedBy: 'Dr. Ben Carter',
+    lastEditedOn: '2023-10-28T14:30:00Z',
   },
   {
     id: 'REF003',
@@ -59,6 +87,12 @@ export const referrals: Referral[] = [
     status: 'Pending',
     date: '2023-11-01',
     priority: 'Routine',
+    diagnosis: 'Migraines',
+    side: 'General',
+    severity: 'Moderate',
+    referredBy: 'Dr. Olivia Chen',
+    lastEditedBy: 'Dr. Olivia Chen',
+    lastEditedOn: '2023-11-01T09:15:00Z',
   },
   {
     id: 'REF004',
@@ -67,6 +101,9 @@ export const referrals: Referral[] = [
     status: 'Cancelled',
     date: '2023-10-29',
     priority: 'STAT',
+    referredBy: 'Dr. Sam Wallace',
+    lastEditedBy: 'Dr. Sam Wallace',
+    lastEditedOn: '2023-10-29T11:00:00Z',
   },
   {
     id: 'REF005',
@@ -75,6 +112,9 @@ export const referrals: Referral[] = [
     status: 'Pending',
     date: '2023-11-02',
     priority: 'Urgent',
+    referredBy: 'Dr. Chloe Kim',
+    lastEditedBy: 'Dr. Chloe Kim',
+    lastEditedOn: '2023-11-02T13:00:00Z',
   },
    {
     id: 'REF006',
@@ -83,6 +123,13 @@ export const referrals: Referral[] = [
     status: 'In Progress',
     date: '2023-11-03',
     priority: 'Urgent',
+    diagnosis: 'Coronary Artery Disease',
+    side: 'General',
+    severity: 'Severe',
+    clinicalDetails: 'Patient reports chest pain and fatigue.',
+    referredBy: 'Dr. Evelyn Reed',
+    lastEditedBy: 'Dr. Isaac Hayes',
+    lastEditedOn: '2023-11-04T16:45:00Z',
   },
   {
     id: 'REF007',
@@ -91,6 +138,9 @@ export const referrals: Referral[] = [
     status: 'Pending',
     date: '2023-11-05',
     priority: 'Routine',
+    referredBy: 'Dr. Ben Carter',
+    lastEditedBy: 'Dr. Ben Carter',
+    lastEditedOn: '2023-11-05T11:30:00Z',
   },
   {
     id: 'REF008',
@@ -99,6 +149,9 @@ export const referrals: Referral[] = [
     status: 'Canceled by referrer',
     date: '2023-11-06',
     priority: 'Routine',
+    referredBy: 'Dr. Sam Wallace',
+    lastEditedBy: 'Dr. Sam Wallace',
+    lastEditedOn: '2023-11-06T10:00:00Z',
   },
   {
     id: 'REF009',
@@ -107,6 +160,9 @@ export const referrals: Referral[] = [
     status: 'Refused by referred',
     date: '2023-11-07',
     priority: 'Routine',
+    referredBy: 'Dr. Olivia Chen',
+    lastEditedBy: 'Dr. Olivia Chen',
+    lastEditedOn: '2023-11-07T14:00:00Z',
   },
   {
     id: 'REF010',
@@ -115,6 +171,9 @@ export const referrals: Referral[] = [
     status: 'Patient declined',
     date: '2023-11-08',
     priority: 'Routine',
+    referredBy: 'Dr. Ben Carter',
+    lastEditedBy: 'Dr. Ben Carter',
+    lastEditedOn: '2023-11-08T18:00:00Z',
   },
   {
     id: 'REF011',
@@ -124,6 +183,9 @@ export const referrals: Referral[] = [
     date: '2023-11-09',
     priority: 'Routine',
     isDraft: true,
+    referredBy: 'Dr. Jane Doe',
+    lastEditedBy: 'Dr. Jane Doe',
+    lastEditedOn: '2023-11-09T12:00:00Z',
   },
 ];
 
