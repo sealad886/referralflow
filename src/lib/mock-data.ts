@@ -1,5 +1,5 @@
 export type Patient = {
-  id: string;
+  id: string; // This will serve as the MRN (Medical Record Number)
   name: string;
   dob: string;
   gender: 'Male' | 'Female' | 'Other';
@@ -23,11 +23,13 @@ export type NotificationEvent = {
 };
 
 export const patients: Patient[] = [
-  { id: 'PAT001', name: 'John Smith', dob: '1985-02-15', gender: 'Male' },
-  { id: 'PAT002', name: 'Emily Jones', dob: '1992-08-22', gender: 'Female' },
-  { id: 'PAT003', name: 'Michael Williams', dob: '1978-11-05', gender: 'Male' },
-  { id: 'PAT004', name: 'Jessica Brown', dob: '2001-04-30', gender: 'Female' },
-  { id: 'PAT005', name: 'David Miller', dob: '1964-07-12', gender: 'Male' },
+  { id: 'MRN87345', name: 'John Smith', dob: '1985-02-15', gender: 'Male' },
+  { id: 'MRN12389', name: 'Emily Jones', dob: '1992-08-22', gender: 'Female' },
+  { id: 'MRN55432', name: 'Michael Williams', dob: '1978-11-05', gender: 'Male' },
+  { id: 'MRN98765', name: 'Jessica Brown', dob: '2001-04-30', gender: 'Female' },
+  { id: 'MRN34567', name: 'David Miller', dob: '1964-07-12', gender: 'Male' },
+  { id: 'MRN11223', name: 'Sarah Davis', dob: '1988-01-19', gender: 'Female' },
+  { id: 'MRN66778', name: 'John Smith', dob: '1989-03-20', gender: 'Male' },
 ];
 
 export const referrals: Referral[] = [
@@ -73,12 +75,20 @@ export const referrals: Referral[] = [
   },
    {
     id: 'REF006',
-    patient: { id: 'PAT006', name: 'Sarah Davis', dob: '1988-01-19', gender: 'Female' },
+    patient: patients[5],
     department: 'Cardiology',
     status: 'In Progress',
     date: '2023-11-03',
     priority: 'Urgent',
   },
+  {
+    id: 'REF007',
+    patient: patients[6],
+    department: 'Cardiology',
+    status: 'Pending',
+    date: '2023-11-05',
+    priority: 'Routine',
+  }
 ];
 
 export const notifications: NotificationEvent[] = [

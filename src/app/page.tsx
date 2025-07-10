@@ -4,10 +4,9 @@ import * as React from "react";
 import {
   ChevronsUpDown,
   FileDown,
-  Filter,
   MoreHorizontal,
-  PlusCircle,
   Search,
+  Trash2,
 } from "lucide-react";
 
 import { AppLayout } from "@/components/app-layout";
@@ -44,8 +43,9 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { referrals, Referral } from "@/lib/mock-data";
+import { referrals, Referral, Patient } from "@/lib/mock-data";
 import { NewReferralDialog } from "@/components/new-referral-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const statusColors: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
   "Pending": "secondary",
@@ -54,19 +54,102 @@ const statusColors: { [key: string]: "default" | "secondary" | "destructive" | "
   "Cancelled": "destructive",
 };
 
-export default function DashboardPage() {
-  const [filteredReferrals, setFilteredReferrals] = React.useState(referrals);
+type SortKey = "patient" | "department" | "status" | "date";
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const term = event.target.value.toLowerCase();
-    setFilteredReferrals(
-      referrals.filter(
-        (r) =>
-          r.patient.name.toLowerCase().includes(term) ||
-          r.department.toLowerCase().includes(term)
-      )
+export default function DashboardPage() {
+  const [data, setData] = React.useState(referrals);
+  const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
+  const [sortConfig, setSortConfig] = React.useState<{ key: SortKey; direction: 'asc' | 'desc' } | null>({ key: 'date', direction: 'desc' });
+  const [filters, setFilters] = React.useState<{ department: string[], status: string[] }>({ department: [], status: [] });
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const departments = React.useMemo(() => [...new Set(referrals.map(r => r.department))], []);
+  const statuses = React.useMemo(() => [...new Set(referrals.map(r => r.status))], []);
+
+  const handleSort = (key: SortKey) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const handleFilterChange = (filterType: 'department' | 'status', value: string) => {
+    setFilters(prev => {
+      const currentValues = prev[filterType];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+      return { ...prev, [filterType]: newValues };
+    });
+  };
+
+  const handleSelectAll = (checked: boolean | 'indeterminate') => {
+    if (checked === true) {
+      setSelectedRows(data.map(r => r.id));
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
+  const handleRowSelect = (rowId: string) => {
+    setSelectedRows(prev => 
+      prev.includes(rowId) 
+        ? prev.filter(id => id !== rowId) 
+        : [...prev, rowId]
     );
   };
+
+  const filteredData = React.useMemo(() => {
+    let filtered = [...referrals];
+
+    if (searchTerm) {
+      filtered = filtered.filter(r =>
+        r.patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.patient.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.id.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    if (filters.department.length > 0) {
+      filtered = filtered.filter(r => filters.department.includes(r.department));
+    }
+    
+    if (filters.status.length > 0) {
+      filtered = filtered.filter(r => filters.status.includes(r.status));
+    }
+
+    return filtered;
+  }, [searchTerm, filters]);
+
+
+  const sortedAndFilteredData = React.useMemo(() => {
+    let sortableItems = [...filteredData];
+    if (sortConfig !== null) {
+      sortableItems.sort((a, b) => {
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+        
+        if (sortConfig.key === 'patient') {
+            const aPatient = a.patient as Patient;
+            const bPatient = b.patient as Patient;
+            if (aPatient.name < bPatient.name) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aPatient.name > bPatient.name) return sortConfig.direction === 'asc' ? 1 : -1;
+            if (aPatient.id < bPatient.id) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aPatient.id > bPatient.id) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [filteredData, sortConfig]);
+
+  const numSelected = selectedRows.length;
 
   return (
     <AppLayout>
@@ -78,10 +161,10 @@ export default function DashboardPage() {
         <Tabs defaultValue="all">
           <div className="flex items-center">
             <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="pending">Pending</TabsTrigger>
-              <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-              <TabsTrigger value="completed" className="hidden sm:flex">
+              <TabsTrigger value="all" onClick={() => setFilters(prev => ({ ...prev, status: [] }))}>All</TabsTrigger>
+              <TabsTrigger value="pending" onClick={() => setFilters(prev => ({...prev, status: ['Pending']}))}>Pending</TabsTrigger>
+              <TabsTrigger value="in-progress" onClick={() => setFilters(prev => ({...prev, status: ['In Progress']}))}>In Progress</TabsTrigger>
+              <TabsTrigger value="completed" className="hidden sm:flex" onClick={() => setFilters(prev => ({...prev, status: ['Completed']}))}>
                 Completed
               </TabsTrigger>
             </TabsList>
@@ -89,21 +172,36 @@ export default function DashboardPage() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 gap-1">
-                    <Filter className="h-3.5 w-3.5" />
+                    <ChevronsUpDown className="h-3.5 w-3.5" />
                     <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                       Filter
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Filter by status</DropdownMenuLabel>
+                  <DropdownMenuLabel>Filter by Department</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuCheckboxItem checked>
-                    All
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem>Pending</DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem>In Progress</DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem>Completed</DropdownMenuCheckboxItem>
+                  {departments.map(dept => (
+                     <DropdownMenuCheckboxItem
+                        key={dept}
+                        checked={filters.department.includes(dept)}
+                        onCheckedChange={() => handleFilterChange('department', dept)}
+                     >
+                       {dept}
+                     </DropdownMenuCheckboxItem>
+                  ))}
+                   <DropdownMenuSeparator />
+                   <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {statuses.map(status => (
+                     <DropdownMenuCheckboxItem
+                        key={status}
+                        checked={filters.status.includes(status)}
+                        onCheckedChange={() => handleFilterChange('status', status)}
+                     >
+                       {status}
+                     </DropdownMenuCheckboxItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
               <Button size="sm" variant="outline" className="h-8 gap-1">
@@ -121,30 +219,63 @@ export default function DashboardPage() {
                 <CardDescription>
                   Track and manage all patient referrals.
                 </CardDescription>
-                <div className="relative mt-2">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    type="search" 
-                    placeholder="Search by patient or department..." 
-                    className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
-                    onChange={handleSearch}
-                  />
+                <div className="flex justify-between items-center mt-2">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      type="search" 
+                      placeholder="Search referrals..." 
+                      className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                   {numSelected > 0 && (
+                    <div className="flex items-center gap-2">
+                       <span className="text-sm text-muted-foreground">{numSelected} selected</span>
+                       <Button variant="outline" size="sm">Update Status</Button>
+                       <Button variant="destructive" size="sm" className="gap-1">
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete
+                       </Button>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Patient</TableHead>
-                      <TableHead>Department</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead padding="checkbox">
+                        <Checkbox
+                          checked={numSelected === sortedAndFilteredData.length && sortedAndFilteredData.length > 0 ? true : numSelected > 0 ? 'indeterminate' : false}
+                          onCheckedChange={handleSelectAll}
+                          aria-label="Select all"
+                        />
+                      </TableHead>
                       <TableHead>
-                        <div className="flex items-center">
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('patient')} className="p-0 h-6">
+                          Patient
+                          <ChevronsUpDown className="ml-2 h-4 w-4" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('department')} className="p-0 h-6">
+                           Department
+                          <ChevronsUpDown className="ml-2 h-4 w-4" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('status')} className="p-0 h-6">
+                          Status
+                          <ChevronsUpDown className="ml-2 h-4 w-4" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                        <Button variant="ghost" size="sm" onClick={() => handleSort('date')} className="p-0 h-6">
                           Date
-                          <Button variant="ghost" size="sm" className="ml-2 h-6 w-6 p-0">
-                            <ChevronsUpDown className="h-4 w-4" />
-                          </Button>
-                        </div>
+                          <ChevronsUpDown className="ml-2 h-4 w-4" />
+                        </Button>
                       </TableHead>
                       <TableHead>
                         <span className="sr-only">Actions</span>
@@ -152,41 +283,54 @@ export default function DashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredReferrals.map((referral: Referral) => (
-                      <TableRow key={referral.id}>
-                        <TableCell className="font-medium">{referral.patient.name}</TableCell>
-                        <TableCell>{referral.department}</TableCell>
-                        <TableCell>
-                          <Badge variant={statusColors[referral.status]}>
-                            {referral.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{referral.date}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                aria-haspopup="true"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>View Details</DropdownMenuItem>
-                              <DropdownMenuItem>Update Status</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">
-                                Cancel Referral
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {sortedAndFilteredData.map((referral: Referral) => {
+                      const isSelected = selectedRows.includes(referral.id);
+                      return (
+                        <TableRow key={referral.id} data-state={isSelected && "selected"}>
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={() => handleRowSelect(referral.id)}
+                              aria-label={`Select referral ${referral.id}`}
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            <div>{referral.patient.name}</div>
+                            <div className="text-sm text-muted-foreground">{referral.patient.id}</div>
+                          </TableCell>
+                          <TableCell>{referral.department}</TableCell>
+                          <TableCell>
+                            <Badge variant={statusColors[referral.status]}>
+                              {referral.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{referral.date}</TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  aria-haspopup="true"
+                                  size="icon"
+                                  variant="ghost"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Toggle menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem>View Details</DropdownMenuItem>
+                                <DropdownMenuItem>Update Status</DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-destructive">
+                                  Cancel Referral
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>
