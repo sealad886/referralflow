@@ -7,11 +7,12 @@ import { Moon, Sun, Monitor, Paintbrush } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Label } from "./ui/label"
-import { cn } from "@/lib/utils"
 
 export function ThemeSwitcher() {
   const { setTheme, theme } = useTheme()
   const [activeColorTheme, setActiveColorTheme] = React.useState("");
+  const [isMounted, setIsMounted] = React.useState(false);
+
 
   const themes = [
     { name: "Light", value: "light", icon: Sun },
@@ -43,13 +44,23 @@ export function ThemeSwitcher() {
   };
   
   React.useEffect(() => {
-    const savedColorTheme = localStorage.getItem("color-theme") || "";
-    handleColorThemeChange(savedColorTheme);
-    
-    // Set active theme on initial load
-    const currentTheme = colorThemes.find(ct => document.body.classList.contains(ct.value))?.value || "";
-    setActiveColorTheme(currentTheme);
+    setIsMounted(true);
   }, []);
+
+  React.useEffect(() => {
+    if (isMounted) {
+      const savedColorTheme = localStorage.getItem("color-theme") || "";
+      const currentTheme = colorThemes.find(ct => document.body.classList.contains(ct.value))?.value || "";
+      const activeTheme = savedColorTheme || currentTheme;
+      setActiveColorTheme(activeTheme);
+      // Ensure the class is applied on load
+      handleColorThemeChange(activeTheme);
+    }
+  }, [isMounted]);
+
+  if (!isMounted) {
+    return null; // or a skeleton loader
+  }
 
   return (
     <div className="grid gap-4">
