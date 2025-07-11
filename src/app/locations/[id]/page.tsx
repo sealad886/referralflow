@@ -73,13 +73,13 @@ const settingGroups: {
 ];
 
 export default function LocationSettingsPage({
-  params,
+  params: { id },
 }: {
   params: { id: string };
 }) {
   const router = useRouter();
   const { toast } = useToast();
-  const isNew = params.id === "new";
+  const isNew = id === "new";
 
   const [location, setLocation] = React.useState<Partial<Location> | null>(
     null
@@ -96,14 +96,14 @@ export default function LocationSettingsPage({
         settings: [],
       });
     } else {
-      const foundLocation = locations.find((l) => l.id === params.id);
+      const foundLocation = locations.find((l) => l.id === id);
       if (foundLocation) {
         setLocation(foundLocation);
       } else {
         notFound();
       }
     }
-  }, [params.id, isNew]);
+  }, [id, isNew]);
   
   const handleInputChange = (field: keyof Location, value: string) => {
     setLocation(prev => prev ? {...prev, [field]: value} : null);
