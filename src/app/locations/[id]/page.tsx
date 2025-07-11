@@ -1,3 +1,4 @@
+
 // This is a new file for the dedicated location settings page.
 "use client";
 
@@ -73,10 +74,11 @@ const settingGroups: {
 ];
 
 export default function LocationSettingsPage({
-  params: { id },
+  params,
 }: {
   params: { id: string };
 }) {
+  const { id } = params;
   const router = useRouter();
   const { toast } = useToast();
   const isNew = id === "new";
