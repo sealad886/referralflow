@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -80,23 +81,25 @@ export default function LocationSettingsForm({
   const { toast } = useToast();
   const isNew = id === "new";
 
-  const [location, setLocation] = React.useState<Partial<Location> | null>(
-    null
-  );
+  const [originalLocation, setOriginalLocation] = React.useState<Partial<Location> | null>(null);
+  const [location, setLocation] = React.useState<Partial<Location> | null>(null);
   const [activeGroup, setActiveGroup] = React.useState("general");
 
   React.useEffect(() => {
     if (isNew) {
-      setLocation({
+      const newLoc = {
         id: `loc_${Date.now()}`,
         name: "",
-        type: "Department",
+        type: "Department" as LocationType,
         parentId: null,
         settings: [],
-      });
+      };
+      setOriginalLocation(newLoc);
+      setLocation(newLoc);
     } else {
       const foundLocation = locations.find((l) => l.id === id);
       if (foundLocation) {
+        setOriginalLocation(foundLocation);
         setLocation(foundLocation);
       } else {
         notFound();
@@ -135,15 +138,19 @@ export default function LocationSettingsForm({
   }
 
   const handleSave = () => {
+    // This is where you'd call an API to save the data.
+    // For this prototype, we'll just show a toast and navigate.
+    // The actual "persistence" happens because we edited mock-data.ts in a previous step.
     console.log("Saving location:", location);
     toast({
       title: isNew ? "Location Created" : "Location Updated",
       description: `Location "${location?.name}" has been saved.`,
     });
     router.push("/locations");
+    router.refresh(); // Tell Next.js to refresh the data on the locations page.
   };
 
-  if (!location) {
+  if (!location || !originalLocation) {
     return null; // or a loading skeleton
   }
 
@@ -164,7 +171,7 @@ export default function LocationSettingsForm({
               <span className="sr-only">Back</span>
             </Button>
             <h1 className="font-semibold text-3xl">
-              {isNew ? "New Location" : location.name}
+              {isNew ? "New Location" : originalLocation.name}
             </h1>
           </div>
         </div>
