@@ -78,6 +78,83 @@ export type User = {
   mfaEnabled: boolean;
 };
 
+// --- Location Management ---
+
+export type LocationType = 'Facility' | 'Department';
+
+export type LocationSettings = {
+  id: `setting_${string}`;
+  name: string;
+  value: string | number | boolean;
+  unit?: 'days' | 'hours' | 'percent';
+  description: string;
+  isInherited?: boolean; // Used by the simulator
+};
+
+export type Location = {
+  id: `loc_${string}`;
+  name: string;
+  type: LocationType;
+  parentId?: `loc_${string}` | null;
+  settings: LocationSettings[];
+};
+
+export const locations: Location[] = [
+  {
+    id: 'loc_main_hospital',
+    name: 'General Hospital',
+    type: 'Facility',
+    parentId: null,
+    settings: [
+      { id: 'setting_001', name: 'Default Referral Deadline', value: 14, unit: 'days', description: 'Default time frame for routine referrals to be completed.' },
+      { id: 'setting_002', name: 'Urgent Referral Deadline', value: 3, unit: 'days', description: 'Default time frame for urgent referrals to be completed.' },
+    ],
+  },
+  {
+    id: 'loc_cardiology_dept',
+    name: 'Cardiology',
+    type: 'Department',
+    parentId: 'loc_main_hospital',
+    settings: [
+       { id: 'setting_002', name: 'Urgent Referral Deadline', value: 2, unit: 'days', description: 'Cardiology requires a faster turnaround for urgent cases.' },
+    ],
+  },
+  {
+    id: 'loc_ortho_dept',
+    name: 'Orthopedics',
+    type: 'Department',
+    parentId: 'loc_main_hospital',
+    settings: [],
+  },
+  {
+    id: 'loc_dialysis_unit',
+    name: 'Dialysis Unit',
+    type: 'Department',
+    parentId: 'loc_cardiology_dept',
+    settings: [
+       { id: 'setting_001', name: 'Default Referral Deadline', value: 7, unit: 'days', description: 'Dialysis referrals must be processed weekly.' },
+       { id: 'setting_003', name: 'Requires Pre-authorization', value: true, description: 'All dialysis referrals require pre-authorization from insurance.'}
+    ],
+  },
+   {
+    id: 'loc_dialysis_4th_floor',
+    name: 'Dialysis, 4th Floor',
+    type: 'Department',
+    parentId: 'loc_dialysis_unit',
+    settings: [],
+  },
+  {
+    id: 'loc_dialysis_ground_floor',
+    name: 'Dialysis, Ground Floor',
+    type: 'Department',
+    parentId: 'loc_dialysis_unit',
+    settings: [
+      { id: 'setting_001', name: 'Default Referral Deadline', value: 5, unit: 'days', description: 'Ground floor has higher throughput and requires faster completion.' },
+    ],
+  },
+];
+
+
 export const userGroups: UserGroup[] = [
     {
         id: 'group_cardio_clinicians',

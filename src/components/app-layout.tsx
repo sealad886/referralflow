@@ -37,7 +37,8 @@ import {
   LogOut,
   ChevronsRight,
   FileText,
-  UserCog
+  UserCog,
+  Building,
 } from "lucide-react";
 import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
@@ -47,6 +48,7 @@ const navItems = [
   { href: "/referrals", label: "Referrals", icon: FileText },
   { href: "/patients", label: "Patients", icon: Users },
   { href: "/users", label: "Users", icon: UserCog },
+  { href: "/locations", label: "Locations", icon: Building },
   { href: "/notifications", label: "Notifications", icon: Bell },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
