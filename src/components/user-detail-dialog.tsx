@@ -41,6 +41,7 @@ import {
   Mail,
   ShieldAlert,
   Trash2,
+  Users as UsersIcon,
 } from "lucide-react";
 
 interface UserDetailDialogProps {
