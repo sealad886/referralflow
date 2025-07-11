@@ -102,7 +102,7 @@ export type Location = {
 export const locations: Location[] = [
   {
     id: 'loc_main_hospital',
-    name: 'General Hospital',
+    name: 'City Central Hospital',
     type: 'Facility',
     parentId: null,
     settings: [
