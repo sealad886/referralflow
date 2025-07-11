@@ -22,14 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import {
   Building,
   ChevronRight,
   PlusCircle,
-  Siren,
   FileCog,
-  ChevronDown,
 } from "lucide-react";
 import {
   locations,
@@ -38,14 +35,14 @@ import {
   LocationType,
 } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import { LocationDetailDialog } from "@/components/location-detail-dialog";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type LocationNode = Location & { children: LocationNode[] };
 
 export default function LocationsPage() {
+  const router = useRouter();
   const [tree, setTree] = React.useState<LocationNode[]>([]);
-  const [selectedLocation, setSelectedLocation] = React.useState<Location | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
   const [simulatedLocation, setSimulatedLocation] = React.useState<Location | null>(null);
   const [effectiveSettings, setEffectiveSettings] = React.useState<LocationSettings[]>([]);
 
@@ -63,22 +60,6 @@ export default function LocationsPage() {
     };
     setTree(buildTree(locations));
   }, []);
-  
-  const handleSelectLocation = (location: Location) => {
-    setSelectedLocation(location);
-    setIsDetailOpen(true);
-  }
-  
-  const handleAddNew = () => {
-    setSelectedLocation(null);
-    setIsDetailOpen(true);
-  }
-
-  const handleDialogClose = (refresh?: boolean) => {
-    setIsDetailOpen(false);
-    setSelectedLocation(null);
-    // In a real app, you would refetch data if refresh is true
-  };
   
   const getParentSettings = (locationId: string): LocationSettings[] => {
     const location = locations.find(l => l.id === locationId);
@@ -147,7 +128,7 @@ export default function LocationsPage() {
 
           <div
             className="flex-1 flex items-center gap-4 cursor-pointer"
-            onClick={() => handleSelectLocation(node)}
+            onClick={() => router.push(`/locations/${node.id}`)}
           >
             <div
               className={cn(
@@ -162,8 +143,10 @@ export default function LocationsPage() {
               <p className="text-sm text-muted-foreground">{node.type}</p>
             </div>
           </div>
-           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleSelectLocation(node)}>
-             <FileCog className="h-4 w-4" />
+           <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+             <Link href={`/locations/${node.id}`}>
+               <FileCog className="h-4 w-4" />
+             </Link>
            </Button>
         </div>
         <CollapsibleContent>
@@ -178,9 +161,11 @@ export default function LocationsPage() {
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         <div className="flex items-center justify-between">
           <h1 className="font-semibold text-3xl">Locations</h1>
-           <Button onClick={handleAddNew}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Location
+           <Button asChild>
+            <Link href="/locations/new">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add New Location
+            </Link>
           </Button>
         </div>
 
@@ -241,11 +226,6 @@ export default function LocationsPage() {
             </Card>
         </div>
       </main>
-      <LocationDetailDialog
-        isOpen={isDetailOpen}
-        location={selectedLocation}
-        onDialogClose={handleDialogClose}
-      />
     </AppLayout>
   );
 }

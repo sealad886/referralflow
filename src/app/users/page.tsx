@@ -27,6 +27,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
@@ -52,18 +53,83 @@ const statusColors: { [key in UserStatus]: "default" | "secondary" | "destructiv
   Pending: "secondary",
 };
 
+const allRoles: UserRole[] = ["Admin", "Manager", "Clinical", "Clerical"];
+const allStatuses: UserStatus[] = ["Active", "Inactive", "Pending"];
+
+type SortKey = "name" | "status" | "role" | "department";
+
+
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
   const [isUserDetailOpen, setIsUserDetailOpen] = React.useState(false);
 
-  const filteredUsers = React.useMemo(() => {
-    return users.filter(user =>
-      `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm]);
+  const [sortConfig, setSortConfig] = React.useState<{ key: SortKey; direction: 'asc' | 'desc' } | null>({ key: 'name', direction: 'asc' });
+  const [filters, setFilters] = React.useState<{ role: UserRole[], status: UserStatus[] }>({ role: [], status: [] });
+
+  const handleSort = (key: SortKey) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+  
+  const handleFilterChange = (filterType: 'role' | 'status', value: string) => {
+    setFilters(prev => {
+      const currentValues = prev[filterType];
+      const newValues = currentValues.includes(value as any)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+      return { ...prev, [filterType]: newValues as any };
+    });
+  };
+
+  const filteredData = React.useMemo(() => {
+    let filtered = [...users];
+    
+    if (searchTerm) {
+      const lowercasedTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter(user =>
+        `${user.firstName} ${user.lastName}`.toLowerCase().includes(lowercasedTerm) ||
+        user.email.toLowerCase().includes(lowercasedTerm)
+      );
+    }
+    
+    if (filters.role.length > 0) {
+      filtered = filtered.filter(u => filters.role.includes(u.role));
+    }
+    
+    if (filters.status.length > 0) {
+      filtered = filtered.filter(u => filters.status.includes(u.status));
+    }
+
+    return filtered;
+  }, [searchTerm, filters]);
+  
+  const sortedAndFilteredData = React.useMemo(() => {
+    let sortableItems = [...filteredData];
+    if (sortConfig !== null) {
+      sortableItems.sort((a, b) => {
+        let aValue, bValue;
+        if (sortConfig.key === 'name') {
+            aValue = `${a.firstName} ${a.lastName}`;
+            bValue = `${b.firstName} ${b.lastName}`;
+        } else if (sortConfig.key === 'department') {
+            aValue = a.departments.join(', ');
+            bValue = b.departments.join(', ');
+        } else {
+            aValue = a[sortConfig.key];
+            bValue = b[sortConfig.key];
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [filteredData, sortConfig]);
 
   const handleRowClick = (user: User) => {
     setSelectedUser(user);
@@ -103,32 +169,89 @@ export default function UsersPage() {
             <CardDescription>
               Onboard, offboard, and manage permissions for all users.
             </CardDescription>
-            <div className="relative mt-2">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search users..."
-                className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+            <div className="flex items-center justify-between mt-2">
+                <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                    type="search"
+                    placeholder="Search users..."
+                    className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-8 gap-1">
+                        <ChevronsUpDown className="h-3.5 w-3.5" />
+                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                        Filter
+                        </span>
+                    </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Filter by Role</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {allRoles.map(role => (
+                        <DropdownMenuCheckboxItem
+                            key={role}
+                            checked={filters.role.includes(role)}
+                            onCheckedChange={() => handleFilterChange('role', role)}
+                        >
+                        {role}
+                        </DropdownMenuCheckboxItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {allStatuses.map(status => (
+                        <DropdownMenuCheckboxItem
+                            key={status}
+                            checked={filters.status.includes(status)}
+                            onCheckedChange={() => handleFilterChange('status', status)}
+                        >
+                        {status}
+                        </DropdownMenuCheckboxItem>
+                    ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Department</TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('name')} className="px-0">
+                      Name
+                      <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('status')} className="px-0">
+                      Status
+                      <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('role')} className="px-0">
+                      Role
+                      <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TableHead>
+                   <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('department')} className="px-0">
+                      Department
+                      <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user) => (
+                {sortedAndFilteredData.map((user) => (
                   <TableRow 
                     key={user.id} 
                     onClick={() => handleRowClick(user)}
