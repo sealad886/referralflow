@@ -37,6 +37,190 @@ export type NotificationEvent = {
   recipient: string;
 };
 
+// --- User Management ---
+
+export type UserRole = 'Admin' | 'Manager' | 'Clinical' | 'Clerical';
+export type UserStatus = 'Active' | 'Inactive' | 'Pending';
+
+export type UserPermission =
+  | 'CanAssignReferral'
+  | 'CanCompleteReferral'
+  | 'CanRefuseReferral'
+  | 'CanEditUsers'
+  | 'CanViewGroupAnalytics'
+  | 'CanViewSystemAnalytics';
+
+export type UserGroup = {
+  id: string;
+  name: string;
+  description: string;
+  memberCount: number;
+  permissions: UserPermission[];
+};
+
+export type User = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  title: string;
+  role: UserRole;
+  status: UserStatus;
+  departments: string[];
+  email: string;
+  emailVerified: boolean;
+  phone: string;
+  phoneVerified: boolean;
+  groups: string[]; // Array of group IDs
+  permissions: { [key in UserPermission]?: boolean }; // User-specific overrides
+  lastLogin: string;
+  professionalRegBody?: string;
+  professionalRegId?: string;
+  mfaEnabled: boolean;
+};
+
+export const userGroups: UserGroup[] = [
+    {
+        id: 'group_cardio_clinicians',
+        name: 'Cardiology Clinicians',
+        description: 'Clinical staff in the Cardiology department.',
+        memberCount: 2,
+        permissions: ['CanAssignReferral', 'CanCompleteReferral', 'CanRefuseReferral'],
+    },
+    {
+        id: 'group_managers',
+        name: 'Department Managers',
+        description: 'Managers overseeing departmental operations.',
+        memberCount: 1,
+        permissions: ['CanEditUsers', 'CanViewGroupAnalytics'],
+    },
+     {
+        id: 'group_admins',
+        name: 'System Administrators',
+        description: 'Users with full system access.',
+        memberCount: 1,
+        permissions: ['CanEditUsers', 'CanViewGroupAnalytics', 'CanViewSystemAnalytics', 'CanAssignReferral', 'CanCompleteReferral', 'CanRefuseReferral'],
+    },
+];
+
+export const users: User[] = [
+  {
+    id: 'usr_001',
+    firstName: 'Jane',
+    lastName: 'Doe',
+    title: 'Dr.',
+    role: 'Admin',
+    status: 'Active',
+    departments: ['Administration', 'Cardiology'],
+    email: 'jane.doe@clinic.com',
+    emailVerified: true,
+    phone: '+1 (555) 123-4567',
+    phoneVerified: true,
+    groups: ['group_admins'],
+    permissions: {},
+    lastLogin: '2023-11-10T10:00:00Z',
+    mfaEnabled: true,
+  },
+  {
+    id: 'usr_002',
+    firstName: 'Ben',
+    lastName: 'Carter',
+    title: 'Dr.',
+    role: 'Clinical',
+    status: 'Active',
+    departments: ['Orthopedics'],
+    email: 'ben.carter@clinic.com',
+    emailVerified: true,
+    phone: '+1 (555) 987-6543',
+    phoneVerified: false,
+    groups: [],
+    permissions: {
+      CanAssignReferral: true,
+      CanCompleteReferral: true,
+      CanRefuseReferral: true,
+    },
+    lastLogin: '2023-11-09T14:20:00Z',
+    professionalRegBody: 'GMC',
+    professionalRegId: '7654321',
+    mfaEnabled: false,
+  },
+   {
+    id: 'usr_003',
+    firstName: 'Evelyn',
+    lastName: 'Reed',
+    title: 'Dr.',
+    role: 'Manager',
+    status: 'Active',
+    departments: ['Cardiology'],
+    email: 'evelyn.reed@clinic.com',
+    emailVerified: true,
+    phone: '+1 (555) 111-2222',
+    phoneVerified: true,
+    groups: ['group_managers', 'group_cardio_clinicians'],
+    permissions: {},
+    lastLogin: '2023-11-10T11:05:00Z',
+    professionalRegBody: 'AMA',
+    professionalRegId: '1234567',
+    mfaEnabled: true,
+  },
+  {
+    id: 'usr_004',
+    firstName: 'Admissions',
+    lastName: 'Clerk',
+    title: '',
+    role: 'Clerical',
+    status: 'Active',
+    departments: ['Admissions'],
+    email: 'admissions@clinic.com',
+    emailVerified: true,
+    phone: '+1 (555) 333-4444',
+    phoneVerified: true,
+    groups: [],
+    permissions: {},
+    lastLogin: '2023-11-10T09:15:00Z',
+    mfaEnabled: false,
+  },
+    {
+    id: 'usr_005',
+    firstName: 'Isaac',
+    lastName: 'Hayes',
+    title: 'Dr.',
+    role: 'Clinical',
+    status: 'Inactive',
+    departments: ['Cardiology'],
+    email: 'isaac.hayes@clinic.com',
+    emailVerified: false,
+    phone: '+1 (555) 555-6666',
+    phoneVerified: false,
+    groups: ['group_cardio_clinicians'],
+    permissions: {},
+    lastLogin: '2023-09-15T18:00:00Z',
+    professionalRegBody: 'GMC',
+    professionalRegId: '9876543',
+    mfaEnabled: false,
+  },
+    {
+    id: 'usr_006',
+    firstName: 'Pending',
+    lastName: 'User',
+    title: '',
+    role: 'Clerical',
+    status: 'Pending',
+    departments: ['Neurology'],
+    email: 'pending@clinic.com',
+    emailVerified: false,
+    phone: '',
+    phoneVerified: false,
+    groups: [],
+    permissions: {},
+    lastLogin: '',
+    mfaEnabled: false,
+  },
+];
+
+
+// --- END User Management ---
+
+
 export const patients: Patient[] = [
   { id: 'MRN87345', name: 'John Smith', dob: '1985-02-15', gender: 'Male' },
   { id: 'MRN12389', name: 'Emily Jones', dob: '1992-08-22', gender: 'Female' },

@@ -37,6 +37,7 @@ import {
   LogOut,
   ChevronsRight,
   FileText,
+  UserCog
 } from "lucide-react";
 import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/referrals", label: "Referrals", icon: FileText },
   { href: "/patients", label: "Patients", icon: Users },
+  { href: "/users", label: "Users", icon: UserCog },
   { href: "/notifications", label: "Notifications", icon: Bell },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
