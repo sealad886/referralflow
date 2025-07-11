@@ -1,7 +1,7 @@
 // This is a new file to handle creating a new location.
 // It redirects to the dynamic settings page with a special "new" ID.
-import LocationSettingsPage from "../[id]/page";
+import LocationSettingsForm from "../[id]/location-settings-form";
 
 export default function NewLocationPage() {
-    return <LocationSettingsPage params={{ id: "new" }} />;
+    return <LocationSettingsForm id="new" />;
 }
