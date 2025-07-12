@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -21,6 +22,7 @@ import {
 import { patients, Patient } from "@/lib/mock-data";
 import { Search } from "lucide-react";
 import { PatientDetailDialog } from "@/components/patient-detail-dialog";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function PatientsPage() {
   const [filteredPatients, setFilteredPatients] = React.useState(patients);
@@ -44,7 +46,8 @@ export default function PatientsPage() {
   return (
     <AppLayout>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <div className="flex items-center">
+        <div className="flex items-center gap-4">
+          <SidebarTrigger className="md:hidden" />
           <h1 className="font-semibold text-3xl">Patient Records</h1>
         </div>
         <Card>

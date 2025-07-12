@@ -1,4 +1,6 @@
 
+"use client";
+
 import { AppLayout } from "@/components/app-layout";
 import {
   Card,
@@ -32,6 +34,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const doneStatuses: ReferralStatus[] = ["Completed", "Cancelled", "Canceled by referrer", "Refused by referred", "Patient declined"];
 
@@ -134,7 +137,8 @@ export default function DashboardPage() {
   return (
     <AppLayout>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <div className="flex items-center">
+        <div className="flex items-center gap-4">
+          <SidebarTrigger className="md:hidden" />
           <h1 className="font-semibold text-3xl">Dashboard</h1>
         </div>
 

@@ -23,6 +23,7 @@ import {
 import { User, Edit, FilePlus, ArrowLeft } from "lucide-react";
 import { referrals } from "@/lib/mock-data";
 import { notFound, useRouter } from "next/navigation";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 // Mock history data for a referral
 const mockHistory = [
@@ -73,6 +74,7 @@ export default function ReferralHistoryPage({ params }: { params: { id: string }
     <AppLayout>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         <div className="flex items-center gap-4">
+           <SidebarTrigger className="md:hidden" />
            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only">Back</span>

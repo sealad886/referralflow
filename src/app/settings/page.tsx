@@ -1,4 +1,6 @@
 
+"use client";
+
 import { AppLayout } from "@/components/app-layout";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
@@ -16,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { List, ListItem, ListIcon, ListContent, ListTitle, ListSubtitle } from "@/components/ui/list";
 import { Smartphone, Laptop, LogOut, KeyRound, QrCode, type LucideIcon } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const loggedInDevices: {
     id: string;
@@ -59,7 +62,8 @@ export default function SettingsPage() {
   return (
     <AppLayout>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <div className="flex items-center">
+        <div className="flex items-center gap-4">
+          <SidebarTrigger className="md:hidden" />
           <h1 className="font-semibold text-3xl">Settings</h1>
         </div>
         <div className="grid gap-6">

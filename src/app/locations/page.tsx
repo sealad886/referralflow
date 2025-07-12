@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -37,6 +38,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 type LocationNode = Location & { children: LocationNode[] };
 
@@ -159,8 +161,11 @@ export default function LocationsPage() {
   return (
     <AppLayout>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <div className="flex items-center justify-between">
-          <h1 className="font-semibold text-3xl">Locations</h1>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="md:hidden" />
+            <h1 className="font-semibold text-3xl">Locations</h1>
+          </div>
            <Button asChild>
             <Link href="/locations/new">
                 <PlusCircle className="mr-2 h-4 w-4" />

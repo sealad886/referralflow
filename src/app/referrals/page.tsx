@@ -49,6 +49,7 @@ import { NewReferralDialog } from "@/components/new-referral-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ReferralDetailDialog } from "@/components/referral-detail-dialog";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const statusColors: { [key in ReferralStatus]: "default" | "secondary" | "destructive" | "outline" } = {
   "Pending": "secondary",
@@ -220,8 +221,11 @@ export default function ReferralsPage() {
   return (
     <AppLayout>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <div className="flex items-center justify-between">
-          <h1 className="font-semibold text-3xl">Referrals</h1>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="md:hidden" />
+            <h1 className="font-semibold text-3xl">Referrals</h1>
+          </div>
           <NewReferralDialog />
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>

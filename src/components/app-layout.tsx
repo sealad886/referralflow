@@ -27,7 +27,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarProvider,
-  SidebarTrigger,
   SidebarFooter,
   SidebarSeparator,
   SidebarGroup,
@@ -158,12 +157,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
-          <SidebarTrigger />
-          <div className="flex-1">
-            {/* Can add breadcrumbs or global search here */}
-          </div>
-        </header>
         {children}
       </SidebarInset>
     </SidebarProvider>

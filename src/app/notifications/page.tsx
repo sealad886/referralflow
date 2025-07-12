@@ -1,3 +1,4 @@
+
 import { AppLayout } from "@/components/app-layout";
 import {
   Card,
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { notifications, NotificationEvent } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function NotificationsPage() {
   const getBadgeVariant = (type: NotificationEvent['type']) => {
@@ -34,7 +36,8 @@ export default function NotificationsPage() {
   return (
     <AppLayout>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <div className="flex items-center">
+        <div className="flex items-center gap-4">
+          <SidebarTrigger className="md:hidden" />
           <h1 className="font-semibold text-3xl">Notification Manager</h1>
         </div>
         <Card>
