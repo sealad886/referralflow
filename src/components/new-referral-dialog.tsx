@@ -46,9 +46,12 @@ import { submitReferral } from "@/ai/flows/submit-referral-flow";
 const referralFormSchema = z.object({
   patientId: z.string().min(1, "A patient must be selected."),
   department: z.string().min(1, "Please select a department."),
-  priority: z.enum(["routine", "urgent", "stat"], {
+  priority: z.enum(["Routine", "Urgent", "STAT"], {
     required_error: "You need to select a priority level.",
   }),
+  diagnosis: z.string().optional(),
+  side: z.enum(["Left", "Right", "Both", "General"]).optional(),
+  severity: z.enum(["Mild", "Moderate", "Severe"]).optional(),
   notes: z.string().optional(),
 });
 
@@ -67,7 +70,7 @@ export function NewReferralDialog() {
     defaultValues: {
       patientId: "",
       department: "",
-      priority: "routine",
+      priority: "Routine",
       notes: "",
     },
   });
@@ -236,11 +239,11 @@ export function NewReferralDialog() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="cardiology">Cardiology</SelectItem>
-                        <SelectItem value="orthopedics">Orthopedics</SelectItem>
-                        <SelectItem value="neurology">Neurology</SelectItem>
-                        <SelectItem value="oncology">Oncology</SelectItem>
-                        <SelectItem value="pediatrics">Pediatrics</SelectItem>
+                        <SelectItem value="Cardiology">Cardiology</SelectItem>
+                        <SelectItem value="Orthopedics">Orthopedics</SelectItem>
+                        <SelectItem value="Neurology">Neurology</SelectItem>
+                        <SelectItem value="Oncology">Oncology</SelectItem>
+                        <SelectItem value="Pediatrics">Pediatrics</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -261,19 +264,19 @@ export function NewReferralDialog() {
                       >
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl>
-                            <RadioGroupItem value="routine" />
+                            <RadioGroupItem value="Routine" />
                           </FormControl>
                           <FormLabel className="font-normal">Routine</FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl>
-                            <RadioGroupItem value="urgent" />
+                            <RadioGroupItem value="Urgent" />
                           </FormControl>
                           <FormLabel className="font-normal">Urgent</FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl>
-                            <RadioGroupItem value="stat" />
+                            <RadioGroupItem value="STAT" />
                           </FormControl>
                           <FormLabel className="font-normal">STAT</FormLabel>
                         </FormItem>
@@ -283,6 +286,58 @@ export function NewReferralDialog() {
                   </FormItem>
                 )}
               />
+               <FormField
+                  control={form.control}
+                  name="diagnosis"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Diagnosis</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Atrial Fibrillation" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="side"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Side</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue placeholder="Select side" /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="Left">Left</SelectItem>
+                            <SelectItem value="Right">Right</SelectItem>
+                            <SelectItem value="Both">Both</SelectItem>
+                            <SelectItem value="General">General</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="severity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Severity</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue placeholder="Select severity" /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="Mild">Mild</SelectItem>
+                            <SelectItem value="Moderate">Moderate</SelectItem>
+                            <SelectItem value="Severe">Severe</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               <FormField
                 control={form.control}
                 name="notes"

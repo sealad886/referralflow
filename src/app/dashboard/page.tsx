@@ -16,6 +16,7 @@ import {
   ListSubtitle,
 } from "@/components/ui/list";
 import { cn } from "@/lib/utils";
+import { referrals, ReferralStatus } from "@/lib/mock-data";
 import {
   Activity,
   AlertTriangle,
@@ -32,16 +33,22 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+const doneStatuses: ReferralStatus[] = ["Completed", "Cancelled", "Canceled by referrer", "Refused by referred", "Patient declined"];
+
+const ongoingReferrals = referrals.filter(r => !doneStatuses.includes(r.status) && !r.isDraft).length;
+const completedThisMonth = referrals.filter(r => r.status === 'Completed' && new Date(r.date).getMonth() === new Date().getMonth()).length;
+const requiresAction = referrals.filter(r => r.status === 'Pending').length;
+
 const metrics: {title: string; value: string; icon: keyof typeof import("lucide-react"), color: string}[] = [
   {
     title: "Ongoing Referrals",
-    value: "12",
+    value: ongoingReferrals.toString(),
     icon: "Briefcase",
     color: "text-blue-500",
   },
   {
     title: "Completed This Month",
-    value: "8",
+    value: completedThisMonth.toString(),
     icon: "CheckCircle2",
     color: "text-green-500",
   },
@@ -53,7 +60,7 @@ const metrics: {title: string; value: string; icon: keyof typeof import("lucide-
   },
   {
     title: "Requires Action",
-    value: "3",
+    value: requiresAction.toString(),
     icon: "AlertTriangle",
     color: "text-red-500",
   },
@@ -62,8 +69,8 @@ const metrics: {title: string; value: string; icon: keyof typeof import("lucide-
 const updates = [
   {
     icon: "CheckCircle2",
-    title: "Referral REF002 Completed",
-    subtitle: "Orthopedics referral for Emily Jones marked as complete.",
+    title: "Referral REF001 Completed",
+    subtitle: "Cardiology referral for John Smith marked as complete.",
     time: "2h ago",
     unread: true,
   },
@@ -76,8 +83,8 @@ const updates = [
   },
   {
     icon: "ClipboardList",
-    title: "New Note on REF003",
-    subtitle: "Dr. Jane Doe added a new clinical note.",
+    title: "New Note on REF002",
+    subtitle: "Dr. Ben Carter added a new clinical note.",
     time: "3d ago",
     unread: false,
   },

@@ -237,10 +237,10 @@ export function PatientDetailDialog({
           </div>
           <DialogFooter className="pt-4 border-t">
              <div className="flex-grow">
-                <Button variant="link" size="sm" asChild>
+                <Button variant="outline" size="sm" asChild>
                     <Link href={`/patients/${patient.id}/history`}>
                         <History className="mr-2 h-4 w-4" />
-                        See History
+                        See Full History
                     </Link>
                 </Button>
             </div>
