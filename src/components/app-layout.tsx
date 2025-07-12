@@ -29,6 +29,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
   SidebarFooter,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
@@ -44,10 +45,13 @@ import {
 import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+const primaryNavItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/referrals", label: "Referrals", icon: FileText },
   { href: "/patients", label: "Patients", icon: Users },
+];
+
+const adminNavItems = [
   { href: "/users", label: "Users", icon: UserCog },
   { href: "/locations", label: "Locations", icon: Building },
 ];
@@ -66,7 +70,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {navItems.map((item) => (
+            {primaryNavItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton asChild
                   isActive={pathname.startsWith(item.href)}
@@ -80,6 +84,26 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
+          
+          <div className="mt-auto">
+             <SidebarSeparator />
+              <SidebarMenu>
+                {adminNavItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton asChild
+                      isActive={pathname.startsWith(item.href)}
+                      tooltip={item.label}
+                    >
+                      <Link href={item.href}>
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+          </div>
+
         </SidebarContent>
         <SidebarFooter>
           <DropdownMenu>
