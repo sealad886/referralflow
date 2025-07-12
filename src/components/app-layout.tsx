@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -49,8 +50,6 @@ const navItems = [
   { href: "/patients", label: "Patients", icon: Users },
   { href: "/users", label: "Users", icon: UserCog },
   { href: "/locations", label: "Locations", icon: Building },
-  { href: "/notifications", label: "Notifications", icon: Bell },
-  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -100,9 +99,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <DropdownMenuContent side="right" align="start" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Billing</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                 <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                 <Link href="/notifications">
+                    <Bell className="mr-2 h-4 w-4" />
+                    <span>Notification Log</span>
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/login">
