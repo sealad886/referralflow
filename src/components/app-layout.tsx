@@ -30,6 +30,8 @@ import {
   SidebarTrigger,
   SidebarFooter,
   SidebarSeparator,
+  SidebarGroup,
+  SidebarGroupLabel,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
@@ -58,6 +60,7 @@ const adminNavItems = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const hasNewNotifications = true; // This would come from a data source in a real app
 
   return (
     <SidebarProvider>
@@ -86,33 +89,41 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
           
           <div className="mt-auto">
-             <SidebarSeparator />
-              <SidebarMenu>
-                {adminNavItems.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild
-                      isActive={pathname.startsWith(item.href)}
-                      tooltip={item.label}
-                    >
-                      <Link href={item.href}>
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
+              <SidebarGroup>
+                <SidebarGroupLabel>Admin</SidebarGroupLabel>
+                <SidebarSeparator className="mx-0" />
+                <SidebarMenu>
+                  {adminNavItems.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton asChild
+                        isActive={pathname.startsWith(item.href)}
+                        tooltip={item.label}
+                      >
+                        <Link href={item.href}>
+                          <item.icon className="h-5 w-5" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroup>
           </div>
 
         </SidebarContent>
         <SidebarFooter>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-3 p-2 cursor-pointer hover:bg-sidebar-accent rounded-md">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="@user" />
-                  <AvatarFallback>JD</AvatarFallback>
-                </Avatar>
+              <div className="flex items-center gap-3 p-2 cursor-pointer hover:bg-accent rounded-md">
+                <div className="relative">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src="https://placehold.co/100x100.png" alt="@user" />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                  {hasNewNotifications && (
+                    <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-background" />
+                  )}
+                </div>
                 <div className="hidden group-data-[state=expanded]:block">
                   <p className="text-sm font-medium">Dr. Jane Doe</p>
                   <p className="text-xs text-muted-foreground">Admin</p>
