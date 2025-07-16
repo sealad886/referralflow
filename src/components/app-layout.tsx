@@ -42,6 +42,7 @@ import {
   FileText,
   UserCog,
   Building,
+  HelpCircle,
 } from "lucide-react";
 import { Icons } from "./icons";
 import { cn } from "@/lib/utils";
@@ -143,6 +144,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                  <Link href="/notifications">
                     <Bell className="mr-2 h-4 w-4" />
                     <span>Notification Log</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                 <Link href="/help">
+                    <HelpCircle className="mr-2 h-4 w-4" />
+                    <span>Help & User Guide</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
