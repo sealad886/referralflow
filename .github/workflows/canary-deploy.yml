@@ -1,0 +1,54 @@
+name: Canary Deployment
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'canary-eur3'
+      percentage:
+        description: 'Initial traffic percentage'
+        required: true
+        default: '5'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy Canary
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          channelId: canary-${{ github.run_id }}
+          projectId: ${{ secrets.FIREBASE_PROJECT }}
+          target: ${{ github.event.inputs.environment }}
+          percentage: ${{ github.event.inputs.percentage }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Set monitoring thresholds
+        run: |
+          firebase monitoring:thresholds:set \
+            --project ${{ secrets.FIREBASE_PROJECT }} \
+            --response-time 2000 \
+            --error-rate 0.001
+
+      - name: Post deployment checks
+        uses: nick-fields/retry@v2
+        env:
+          HEALTH_CHECK_URL: https://${{ secrets.FIREBASE_PROJECT }}.web.app/api/health
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          command: curl -sf $HEALTH_CHECK_URL
